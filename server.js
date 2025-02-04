@@ -16,7 +16,7 @@ const serviceAccount = require('./json/wedwe-6c046-firebase-adminsdk-fbsvc-1bf61
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: 'https://wedwe-6c046-default-rtdb.asia-southeast1.firebasedatabase.app' // Replace with your Firebase Realtime Database URL
+    databaseURL: process.env.db_URL // Replace with your Firebase Realtime Database URL
 });
 
 const db = admin.firestore(); // Firestore instance
