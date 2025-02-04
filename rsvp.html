@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSVP</title>
+    <style>
+        /* Simple inline styles for responsiveness and better UI */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .rsvp-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .rsvp-form input {
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            transition: border-color 0.2s;
+        }
+
+        .rsvp-form input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        .rsvp-form button {
+            padding: 10px;
+            font-size: 1rem;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .rsvp-form button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .error {
+            color: red;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .success {
+            color: green;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <h1>RSVP Form</h1>
+            <p>Please fill in your details below:</p>
+
+            <!-- Error Message -->
+            <p id="errorMessage" class="error" style="display: none;"></p>
+            <!-- Success Message -->
+            <p id="successMessage" class="success" style="display: none;"></p>
+
+            <!-- RSVP Form -->
+            <form class="rsvp-form" id="rsvpForm">
+                <input type="text" id="name" name="name" placeholder="Full Name" required>
+                <input 
+                    type="tel" 
+                    id="contact" 
+                    name="contact" 
+                    placeholder="Contact Number (8 digits)" 
+                    pattern="\d{8}" 
+                    title="Contact number must be exactly 8 digits" 
+                    required
+                >
+                <input type="text" id="car_plate" name="car_plate" placeholder="Car Plate Number (optional)">
+                <input type="text" id="diet" name="diet" placeholder="Dietary Preference (optional)">
+                <button type="submit" id="submitButton">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        console.log('JavaScript is loaded!');
+        document.getElementById('rsvpForm').addEventListener('submit', async function (e) {
+            e.preventDefault(); // Prevent default form submission behavior
+
+            // Clear previous messages
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+
+            // Collect form data
+            const formData = {
+                name: document.getElementById('name').value.trim(),
+                contact: document.getElementById('contact').value.trim(),
+                car_plate: document.getElementById('car_plate').value.trim(), // Optional
+                diet: document.getElementById('diet').value.trim() // Optional
+            };
+
+            // Validate contact number (exactly 8 digits)
+            const contactNumber = formData.contact;
+            if (!/^\d{8}$/.test(contactNumber)) {
+                errorMessage.textContent = 'Contact number must be exactly 8 digits.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // Validate the required fields
+            if (!formData.name) {
+                errorMessage.textContent = 'Please fill out the Full Name field.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // Disable the submit button during submission
+            const submitButton = document.getElementById('submitButton');
+            submitButton.disabled = true;
+
+            try {
+                // Send JSON data to the backend endpoint
+                const response = await fetch('http://localhost:5500/rsvp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    successMessage.textContent = 'RSVP submitted successfully!';
+                    successMessage.style.display = 'block';
+                } else {
+                    const errorText = await response.text();
+                    errorMessage.textContent = `Failed to submit RSVP: ${errorText}`;
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error submitting RSVP:', error);
+                errorMessage.textContent = 'An unexpected error occurred. Please try again later.';
+                errorMessage.style.display = 'block';
+            } finally {
+                // Re-enable the submit button
+                submitButton.disabled = false;
+            }
+            console.log('Submitting form:', formData);
+        });
+    </script>
+</body>
+</html>
