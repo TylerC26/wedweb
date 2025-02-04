@@ -12,7 +12,7 @@ app.use(cors()); // Allow all origins
 app.use(express.json());
 
 // Initialize Firebase Admin SDK
-const serviceAccount = require('./json/wedwe-6c046-firebase-adminsdk-fbsvc-1bf613cac4.json'); // Replace with the path to your Firebase service account JSON file
+const serviceAccount = require(process.env.FIREBASE_CREDENTIALS); // Replace with the path to your Firebase service account JSON file
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
